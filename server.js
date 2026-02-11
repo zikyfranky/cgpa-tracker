@@ -8,9 +8,9 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
   createServer((req, res) => {
     // Strip trailing slashes to prevent redirect loops with LiteSpeed
-    if (req.url !== "/" && req.url.endsWith("/")) {
-      req.url = req.url.slice(0, -1);
-    }
+    // if (req.url !== "/" && req.url.endsWith("/")) {
+    //   req.url = req.url.slice(0, -1);
+    // }
     const parsedUrl = parse(req.url, true);
     handle(req, res, parsedUrl);
   }).listen(process.env.PORT || 3000, (err) => {
