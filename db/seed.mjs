@@ -6,6 +6,13 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Load .env.local if it exists (local dev), otherwise rely on system env (cPanel)
+const envPath = path.join(__dirname, '..', '.env.local');
+if (fs.existsSync(envPath)) {
+  const dotenv = await import('dotenv');
+  dotenv.config({ path: envPath });
+}
+
 async function seed() {
   const connection = await mysql.createConnection({
     host: process.env.DB_HOST || 'localhost',
