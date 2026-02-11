@@ -1,5 +1,4 @@
-CREATE DATABASE IF NOT EXISTS cgpa_tracker;
-USE cgpa_tracker;
+-- Tables only (database must already exist via cPanel)
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (

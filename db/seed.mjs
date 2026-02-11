@@ -14,24 +14,22 @@ if (fs.existsSync(envPath)) {
 }
 
 async function seed() {
+  const dbName = process.env.DB_NAME || 'cgpa_tracker';
   const connection = await mysql.createConnection({
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '3306'),
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
+    database: dbName,
     multipleStatements: true,
   });
 
-  console.log('Connected to MySQL');
+  console.log(`Connected to MySQL (database: ${dbName})`);
 
-  // Read and execute schema
+  // Read and execute schema (tables only — database created via cPanel)
   const schemaSQL = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf-8');
   await connection.query(schemaSQL);
   console.log('Schema created');
-
-  // Use the database
-  const dbName = process.env.DB_NAME || 'cgpa_tracker';
-  await connection.query(`USE \`${dbName}\``);
 
   // Clear existing data
   await connection.query('SET FOREIGN_KEY_CHECKS = 0');
