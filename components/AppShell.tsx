@@ -12,6 +12,7 @@ import LevelTab from './LevelTab';
 interface AppShellProps {
   state: AppState;
   courseData: CourseDataMap;
+  matricNumber: string;
   onSetTab: (tab: string) => void;
   onSetMode: (mode: 'scores' | 'grade') => void;
   onSetCurrentPosition: (level: string, sem: string) => void;
@@ -25,7 +26,7 @@ interface AppShellProps {
 }
 
 export default function AppShell({
-  state, courseData,
+  state, courseData, matricNumber,
   onSetTab, onSetMode, onSetCurrentPosition, onSetUpcomingFilter,
   onSetScore, onSetGrade, onClearLevel,
   onAddCarryover, onRemoveCarryover, onLock
@@ -39,6 +40,7 @@ export default function AppShell({
     <div className="app">
       <Header
         courseData={courseData}
+        matricNumber={matricNumber}
         currentLevel={state.currentLevel}
         currentSemester={state.currentSemester}
         onPositionChange={onSetCurrentPosition}

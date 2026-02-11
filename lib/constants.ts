@@ -44,6 +44,7 @@ export const DEPT_TIPS: Record<string, string> = {
 
 export const DEFAULT_TIP = 'Review past questions and focus on understanding core concepts rather than rote memorisation.';
 
-// Storage keys
-export const STATE_STORAGE_KEY = 'cgpa_tracker_isaac_futminna';
-export const AUTH_STORAGE_KEY = 'cgpa_tracker_auth_hash';
+// Storage keys (per-matric-number keying)
+export const STATE_STORAGE_KEY_PREFIX = 'cgpa_state_';
+export const AUTH_STORAGE_KEY_PREFIX = 'cgpa_auth_';
+export const REMEMBER_MATRIC_KEY = 'cgpa_remember_matric';

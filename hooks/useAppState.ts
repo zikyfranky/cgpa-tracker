@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { AppState, GradeEntry } from '@/lib/types';
-import { STATE_STORAGE_KEY } from '@/lib/constants';
+import { useState, useCallback, useRef } from 'react';
+import { AppState } from '@/lib/types';
+import { STATE_STORAGE_KEY_PREFIX } from '@/lib/constants';
 import { getCourseData } from '@/lib/courseData';
 import { getGradeFromScore } from '@/lib/grading';
 import { suggestScores } from '@/lib/grading';
@@ -12,45 +12,54 @@ import { getCourseGrade } from '@/lib/calculations';
 const DEFAULT_STATE: AppState = {
   activeTab: 'overview',
   inputMode: 'scores',
-  currentLevel: '300',
+  currentLevel: '100',
   currentSemester: 'First Semester',
   upcomingFilter: 'all',
   grades: {},
   carryovers: {},
 };
 
+function getStorageKey(matricNumber: string): string {
+  return STATE_STORAGE_KEY_PREFIX + matricNumber.toUpperCase().trim();
+}
+
 export function useAppState() {
   const [state, setState] = useState<AppState>(DEFAULT_STATE);
   const [showSave, setShowSave] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const matricRef = useRef<string>('');
 
-  // Load state from localStorage
-  const loadState = useCallback(() => {
+  // Load state from localStorage for a specific matric number
+  const loadState = useCallback((matricNumber: string) => {
+    matricRef.current = matricNumber;
     try {
-      const saved = localStorage.getItem(STATE_STORAGE_KEY);
+      const saved = localStorage.getItem(getStorageKey(matricNumber));
       if (saved) {
         const parsed = JSON.parse(saved);
         setState({
           activeTab: parsed.activeTab || 'overview',
           inputMode: parsed.inputMode || 'scores',
-          currentLevel: parsed.currentLevel || '300',
+          currentLevel: parsed.currentLevel || '100',
           currentSemester: parsed.currentSemester || 'First Semester',
           upcomingFilter: parsed.upcomingFilter || 'all',
           grades: parsed.grades || {},
           carryovers: parsed.carryovers || {},
         });
+      } else {
+        setState(DEFAULT_STATE);
       }
     } catch (e) {
-      // Ignore parse errors
+      setState(DEFAULT_STATE);
     }
     setLoaded(true);
   }, []);
 
   // Save state to localStorage
   const saveState = useCallback((newState: AppState) => {
+    if (!matricRef.current) return;
     try {
-      localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify({
+      localStorage.setItem(getStorageKey(matricRef.current), JSON.stringify({
         ...newState,
         lastSaved: new Date().toISOString(),
       }));
@@ -84,6 +93,13 @@ export function useAppState() {
       return prev;
     });
   }, [saveState]);
+
+  // Reset loaded state (for when user locks/switches account)
+  const resetLoaded = useCallback(() => {
+    setLoaded(false);
+    setState(DEFAULT_STATE);
+    matricRef.current = '';
+  }, []);
 
   // Actions
   const setTab = useCallback((tab: string) => {
@@ -183,6 +199,7 @@ export function useAppState() {
     showSave,
     loadState,
     doCleanup,
+    resetLoaded,
     setTab,
     setMode,
     setCurrentPosition,

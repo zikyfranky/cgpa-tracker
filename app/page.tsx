@@ -10,48 +10,56 @@ import AppShell from '@/components/AppShell';
 import SaveIndicator from '@/components/SaveIndicator';
 
 export default function Home() {
-  const { isAuthenticated, isSetup, handleSetup, handleLogin, lock } = useAuth();
+  const {
+    isAuthenticated, matricNumber,
+    handleRegister, handleLogin, lock, getRememberedMatric,
+  } = useAuth();
   const {
     state, loaded, showSave,
-    loadState, doCleanup,
+    loadState, doCleanup, resetLoaded,
     setTab, setMode, setCurrentPosition, setUpcomingFilter,
     setScore, setGrade, clearLevel,
     addCarryover, removeCarryover,
   } = useAppState();
 
   const baseCourseData = getCourseData();
-  // Build effective course data with virtual overflow levels for unadded carryovers
   const courseData = useMemo(
     () => buildEffectiveCourseData(baseCourseData, state.grades, state.carryovers),
     [baseCourseData, state.grades, state.carryovers]
   );
 
-  // Load state when authenticated
+  // Load state when authenticated (keyed by matric number)
   useEffect(() => {
-    if (isAuthenticated && !loaded) {
-      loadState();
+    if (isAuthenticated && matricNumber && !loaded) {
+      loadState(matricNumber);
     }
-  }, [isAuthenticated, loaded, loadState]);
+  }, [isAuthenticated, matricNumber, loaded, loadState]);
 
-  // Cleanup carryovers on each render when authenticated
+  // Cleanup carryovers when authenticated and loaded
   useEffect(() => {
     if (isAuthenticated && loaded) {
       doCleanup();
     }
   }, [isAuthenticated, loaded, doCleanup]);
 
+  // Reset state when user locks
+  const handleLock = () => {
+    resetLoaded();
+    lock();
+  };
+
   if (!isAuthenticated) {
     return (
       <LoginScreen
-        isSetupMode={isSetup()}
-        onSetup={handleSetup}
+        rememberedMatric={getRememberedMatric()}
+        onRegister={handleRegister}
         onLogin={handleLogin}
       />
     );
   }
 
   if (!loaded) {
-    return null; // Loading state
+    return null;
   }
 
   return (
@@ -59,6 +67,7 @@ export default function Home() {
       <AppShell
         state={state}
         courseData={courseData}
+        matricNumber={matricNumber}
         onSetTab={setTab}
         onSetMode={setMode}
         onSetCurrentPosition={setCurrentPosition}
@@ -68,7 +77,7 @@ export default function Home() {
         onClearLevel={clearLevel}
         onAddCarryover={addCarryover}
         onRemoveCarryover={removeCarryover}
-        onLock={lock}
+        onLock={handleLock}
       />
       <SaveIndicator show={showSave} />
     </>
