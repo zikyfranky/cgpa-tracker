@@ -1,11 +1,8 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import { AppState } from '@/lib/types';
-import { STATE_STORAGE_KEY_PREFIX } from '@/lib/constants';
-import { getCourseData } from '@/lib/courseData';
-import { getGradeFromScore } from '@/lib/grading';
-import { suggestScores } from '@/lib/grading';
+import { AppState, CourseDataMap } from '@/lib/types';
+import { getGradeFromScore, suggestScores } from '@/lib/grading';
 import { cleanupCarryovers } from '@/lib/carryovers';
 import { getCourseGrade } from '@/lib/calculations';
 
@@ -19,56 +16,57 @@ const DEFAULT_STATE: AppState = {
   carryovers: {},
 };
 
-function getStorageKey(matricNumber: string): string {
-  return STATE_STORAGE_KEY_PREFIX + matricNumber.toUpperCase().trim();
-}
-
 export function useAppState() {
   const [state, setState] = useState<AppState>(DEFAULT_STATE);
   const [showSave, setShowSave] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const matricRef = useRef<string>('');
+  const saveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const courseDataRef = useRef<CourseDataMap | null>(null);
 
-  // Load state from localStorage for a specific matric number
-  const loadState = useCallback((matricNumber: string) => {
-    matricRef.current = matricNumber;
+  // Allow passing courseData for cleanup operations
+  const setCourseDataRef = useCallback((cd: CourseDataMap) => {
+    courseDataRef.current = cd;
+  }, []);
+
+  // Load state from the database
+  const loadState = useCallback(async () => {
     try {
-      const saved = localStorage.getItem(getStorageKey(matricNumber));
-      if (saved) {
-        const parsed = JSON.parse(saved);
+      const res = await fetch('/api/state');
+      if (res.ok) {
+        const data = await res.json();
         setState({
-          activeTab: parsed.activeTab || 'overview',
-          inputMode: parsed.inputMode || 'scores',
-          currentLevel: parsed.currentLevel || '100',
-          currentSemester: parsed.currentSemester || 'First Semester',
-          upcomingFilter: parsed.upcomingFilter || 'all',
-          grades: parsed.grades || {},
-          carryovers: parsed.carryovers || {},
+          activeTab: data.activeTab || 'overview',
+          inputMode: data.inputMode || 'scores',
+          currentLevel: data.currentLevel || '100',
+          currentSemester: data.currentSemester || 'First Semester',
+          upcomingFilter: data.upcomingFilter || 'all',
+          grades: data.grades || {},
+          carryovers: data.carryovers || {},
         });
-      } else {
-        setState(DEFAULT_STATE);
       }
-    } catch (e) {
-      setState(DEFAULT_STATE);
+    } catch {
+      // Use default state on error
     }
     setLoaded(true);
   }, []);
 
-  // Save state to localStorage
+  // Save state to database (debounced)
   const saveState = useCallback((newState: AppState) => {
-    if (!matricRef.current) return;
-    try {
-      localStorage.setItem(getStorageKey(matricRef.current), JSON.stringify({
-        ...newState,
-        lastSaved: new Date().toISOString(),
-      }));
-      setShowSave(true);
-      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-      saveTimerRef.current = setTimeout(() => setShowSave(false), 1500);
-    } catch (e) {
-      // Ignore
-    }
+    // Show save indicator immediately
+    setShowSave(true);
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => setShowSave(false), 1500);
+
+    // Debounce the actual API call to avoid flooding
+    if (saveDebounceRef.current) clearTimeout(saveDebounceRef.current);
+    saveDebounceRef.current = setTimeout(() => {
+      fetch('/api/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newState),
+      }).catch(() => {});
+    }, 500);
   }, []);
 
   // Update helper
@@ -81,9 +79,8 @@ export function useAppState() {
   }, [saveState]);
 
   // Cleanup carryovers
-  const doCleanup = useCallback(() => {
+  const doCleanup = useCallback((courseData: CourseDataMap) => {
     setState(prev => {
-      const courseData = getCourseData();
       const result = cleanupCarryovers(prev.grades, prev.carryovers, courseData, getCourseGrade);
       if (result) {
         const next = { ...prev, grades: result.grades, carryovers: result.carryovers };
@@ -98,7 +95,6 @@ export function useAppState() {
   const resetLoaded = useCallback(() => {
     setLoaded(false);
     setState(DEFAULT_STATE);
-    matricRef.current = '';
   }, []);
 
   // Actions
@@ -127,7 +123,6 @@ export function useAppState() {
       if (field === 'exam' && num !== undefined && (num < 0 || num > 70)) return prev;
       newGrades[key] = { ...newGrades[key], [field]: num };
 
-      // Auto-sync grade from CA+Exam
       const ca = newGrades[key].ca !== undefined ? parseFloat(String(newGrades[key].ca)) : NaN;
       const exam = newGrades[key].exam !== undefined ? parseFloat(String(newGrades[key].exam)) : NaN;
       if (!isNaN(ca) && !isNaN(exam)) {
@@ -157,11 +152,10 @@ export function useAppState() {
     });
   }, [updateState]);
 
-  const clearLevel = useCallback((level: string) => {
+  const clearLevel = useCallback((level: string, courseData: CourseDataMap) => {
     updateState(prev => {
-      const courseData = getCourseData();
       const data = courseData[level];
-      if (!data) return prev; // Virtual level — no regular courses to clear
+      if (!data) return prev;
       const newGrades = { ...prev.grades };
       for (const sem of Object.keys(data.semesters)) {
         for (const c of data.semesters[sem]) {
@@ -200,6 +194,7 @@ export function useAppState() {
     loadState,
     doCleanup,
     resetLoaded,
+    setCourseDataRef,
     setTab,
     setMode,
     setCurrentPosition,
