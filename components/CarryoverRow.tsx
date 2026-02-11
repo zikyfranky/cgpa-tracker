@@ -1,0 +1,110 @@
+'use client';
+
+import { AddedCarryover, GradeEntry, GradeInfo } from '@/lib/types';
+import { GRADES } from '@/lib/constants';
+import { getClassification } from '@/lib/grading';
+import GradeBadge from './GradeBadge';
+
+interface CarryoverRowProps {
+  co: AddedCarryover;
+  gradeKey: string;
+  gradeData: GradeEntry;
+  gradeResult: GradeInfo | null;
+  total: number | null;
+  inputMode: 'scores' | 'grade';
+  onSetScore: (key: string, field: 'ca' | 'exam', value: string) => void;
+  onSetGrade: (key: string, grade: string) => void;
+  onRemove: (coKey: string) => void;
+}
+
+export default function CarryoverRow({
+  co, gradeKey, gradeData, gradeResult, total,
+  inputMode, onSetScore, onSetGrade, onRemove
+}: CarryoverRowProps) {
+  return (
+    <tr className="co-row">
+      <td>
+        <span className="course-code">{co.code}</span>{' '}
+        <span className="co-tag">C/O</span>
+      </td>
+      <td className="course-title" title={co.title}>
+        {co.title} <span className="co-tag-from">from {co.origLevel}L</span>
+      </td>
+      <td><span className="course-units">{co.units}</span></td>
+
+      {inputMode === 'scores' ? (
+        <>
+          <td>
+            <input
+              type="number"
+              className="score-input"
+              min={0}
+              max={30}
+              placeholder="0"
+              value={gradeData.ca !== undefined ? gradeData.ca : ''}
+              onChange={(e) => onSetScore(gradeKey, 'ca', e.target.value)}
+            />
+          </td>
+          <td>
+            <input
+              type="number"
+              className="score-input"
+              min={0}
+              max={70}
+              placeholder="0"
+              value={gradeData.exam !== undefined ? gradeData.exam : ''}
+              onChange={(e) => onSetScore(gradeKey, 'exam', e.target.value)}
+            />
+          </td>
+          <td style={{ fontWeight: 600, color: total !== null ? 'var(--text)' : 'var(--muted)' }}>
+            {total !== null ? total : '—'}
+          </td>
+        </>
+      ) : (
+        <>
+          <td>
+            <select
+              className="grade-select"
+              value={gradeData.grade || ''}
+              onChange={(e) => onSetGrade(gradeKey, e.target.value)}
+            >
+              <option value="">—</option>
+              {GRADES.map(g => (
+                <option key={g.grade} value={g.grade}>
+                  {g.grade} – {g.desc} ({g.min}-{g.max})
+                </option>
+              ))}
+            </select>
+          </td>
+          <td>
+            {gradeData.ca !== undefined && gradeData.exam !== undefined ? (
+              <div className="suggested">
+                CA: <span>{gradeData.ca}</span> | Exam: <span>{gradeData.exam}</span> | Total: <span>{parseFloat(String(gradeData.ca)) + parseFloat(String(gradeData.exam))}</span>
+              </div>
+            ) : (
+              <span style={{ color: 'var(--muted)' }}>—</span>
+            )}
+          </td>
+        </>
+      )}
+
+      <td><GradeBadge grade={gradeResult ? gradeResult.grade : null} /></td>
+      <td style={{
+        fontWeight: 600,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        color: gradeResult ? getClassification(gradeResult.points).color : 'var(--muted)',
+      }}>
+        {gradeResult ? gradeResult.points : '—'}
+        <button
+          className="co-remove-btn"
+          onClick={() => onRemove(co.coKey)}
+          title="Remove carryover"
+        >
+          &times;
+        </button>
+      </td>
+    </tr>
+  );
+}

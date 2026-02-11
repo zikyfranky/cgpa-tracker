@@ -1,0 +1,269 @@
+{
+  "globalMaxUnits": 24,
+  "globalMinUnits": 16,
+  "levels": {
+    "100": {
+      "session": "2023/2024",
+      "semesters": {
+        "First Semester": {
+          "maxUnits": 18,
+          "courses": [
+            {
+              "code": "GST111",
+              "title": "Communication in English",
+              "units": 2
+            },
+            {
+              "code": "CHM107",
+              "title": "General Chemistry Practical I",
+              "units": 1
+            },
+            {
+              "code": "MTH101",
+              "title": "Elementary Mathematics I",
+              "units": 3
+            },
+            {
+              "code": "COS101",
+              "title": "Introduction to Computing Sciences",
+              "units": 3
+            },
+            { "code": "CHM101", "title": "General Chemistry I", "units": 2 },
+            { "code": "PHY101", "title": "General Physics I", "units": 2 },
+            { "code": "FUTM-GPH112", "title": "Probability I", "units": 2 },
+            {
+              "code": "GEY101",
+              "title": "Introduction to Geology I",
+              "units": 2
+            },
+            {
+              "code": "PHY107",
+              "title": "General Practical Physics I",
+              "units": 1
+            }
+          ]
+        },
+        "Second Semester": {
+          "maxUnits": 18,
+          "courses": [
+            {
+              "code": "GST112",
+              "title": "Nigerian Peoples and Culture",
+              "units": 2
+            },
+            { "code": "PHY102", "title": "General Physics II", "units": 2 },
+            {
+              "code": "PHY108",
+              "title": "General Practical Physics II",
+              "units": 1
+            },
+            { "code": "CHM102", "title": "General Chemistry II", "units": 2 },
+            {
+              "code": "GEY102",
+              "title": "Introduction to Geology II",
+              "units": 2
+            },
+            {
+              "code": "FUTM-GPH101",
+              "title": "Introduction to Geophysics",
+              "units": 3
+            },
+            {
+              "code": "FUTM-GPH103",
+              "title": "Behaviour of Matter",
+              "units": 3
+            },
+            {
+              "code": "MTH102",
+              "title": "Elementary Mathematics II",
+              "units": 3
+            }
+          ]
+        }
+      }
+    },
+    "200": {
+      "session": "2024/2025",
+      "semesters": {
+        "First Semester": {
+          "maxUnits": 15,
+          "courses": [
+            { "code": "FUTM-GEY211", "title": "Physical Geology", "units": 2 },
+            {
+              "code": "FUTM-GPH213",
+              "title": "Computer Programming",
+              "units": 2
+            },
+            { "code": "GPH211", "title": "Geomathematics", "units": 2 },
+            {
+              "code": "GPH201",
+              "title": "Introduction to Earth Physics",
+              "units": 2
+            },
+            { "code": "PHY205", "title": "Thermal Physics", "units": 2 },
+            {
+              "code": "ENT211",
+              "title": "Entrepreneurship and Innovation",
+              "units": 2
+            },
+            { "code": "PHY207", "title": "Practical Physics III", "units": 1 },
+            {
+              "code": "FUTM-GPH203",
+              "title": "Introduction to Petrology",
+              "units": 2
+            }
+          ]
+        },
+        "Second Semester": {
+          "maxUnits": 16,
+          "courses": [
+            {
+              "code": "GST212",
+              "title": "Philosophy, Logic and Human Existence",
+              "units": 2
+            },
+            { "code": "PHY208", "title": "Practical Physics IV", "units": 1 },
+            {
+              "code": "GEY210",
+              "title": "Geological Map Interpretation",
+              "units": 2
+            },
+            {
+              "code": "FUTM-GPH223",
+              "title": "Geophysical Software Application",
+              "units": 3
+            },
+            {
+              "code": "FUTM-GPH221",
+              "title": "Basic Surveying II",
+              "units": 3
+            },
+            {
+              "code": "GEY212",
+              "title": "Introduction to Geological Field Mapping",
+              "units": 2
+            },
+            {
+              "code": "PHY204",
+              "title": "General Physics VI (Waves and Optics)",
+              "units": 3
+            }
+          ]
+        }
+      }
+    },
+    "300": {
+      "session": "2025/2026",
+      "semesters": {
+        "First Semester": {
+          "maxUnits": 17,
+          "courses": [
+            {
+              "code": "GPH311",
+              "title": "Principles of Geophysics",
+              "units": 2
+            },
+            {
+              "code": "FUTM-GPH310",
+              "title": "Geophysical Hazard",
+              "units": 3
+            },
+            { "code": "FUTM-GPH311", "title": "Igneous Petrology", "units": 2 },
+            {
+              "code": "FUTM-GPH316",
+              "title": "Electromagnetism I",
+              "units": 2
+            },
+            {
+              "code": "GPH305",
+              "title": "Geophysical Field Method & Instrumental Analysis",
+              "units": 1
+            },
+            {
+              "code": "FUTM-GPH314",
+              "title": "Structural Geology",
+              "units": 3
+            },
+            {
+              "code": "GPH307",
+              "title": "Magnetic Prospecting Methods",
+              "units": 1
+            },
+            {
+              "code": "GPH309",
+              "title": "Gravity Prospecting Methods",
+              "units": 1
+            }
+          ]
+        },
+        "Second Semester": {
+          "maxUnits": 16,
+          "courses": [
+            {
+              "code": "GST312",
+              "title": "Peace and Conflict Resolution",
+              "units": 2
+            },
+            { "code": "ENT312", "title": "Venture Creation", "units": 2 },
+            {
+              "code": "GPH308",
+              "title": "Seismic Refraction Prospecting Methods",
+              "units": 2
+            },
+            {
+              "code": "GPH312",
+              "title": "Electrical & Electromagnetic Methods",
+              "units": 2
+            },
+            {
+              "code": "GPH322",
+              "title": "Introduction to Software Modelling",
+              "units": 1
+            },
+            {
+              "code": "GPH398",
+              "title": "Entrepreneurship in Applied Geophysics",
+              "units": 1
+            },
+            {
+              "code": "FUTM-GPH321",
+              "title": "Remote Sensing and Ground Penetrating Radar",
+              "units": 3
+            },
+            {
+              "code": "FUTM-GPH322",
+              "title": "Geophysical Field School I",
+              "units": 3
+            }
+          ]
+        }
+      }
+    },
+    "400": {
+      "session": "2026/2027",
+      "semesters": {
+        "First Semester": {
+          "maxUnits": 17,
+          "courses": []
+        },
+        "Second Semester": {
+          "maxUnits": 16,
+          "courses": []
+        }
+      }
+    },
+    "500": {
+      "session": "2027/2028",
+      "semesters": {
+        "First Semester": {
+          "maxUnits": 17,
+          "courses": []
+        },
+        "Second Semester": {
+          "maxUnits": 16,
+          "courses": []
+        }
+      }
+    }
+  }
+}
