@@ -50,6 +50,8 @@ export default function AdminPage() {
     units: 0,
   });
   const [expandedLevelId, setExpandedLevelId] = useState<number | null>(null);
+  const [editingSemesterId, setEditingSemesterId] = useState<number | null>(null);
+  const [editingMaxUnits, setEditingMaxUnits] = useState<number>(0);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [passwordMsg, setPasswordMsg] = useState<string | null>(null);
@@ -78,6 +80,31 @@ export default function AdminPage() {
       }, 1500);
     } catch (err) {
       setPasswordMsg(err instanceof Error ? err.message : 'Error changing password');
+    }
+  };
+
+  const handleUpdateMaxUnits = async (semesterId: number) => {
+    try {
+      if (editingMaxUnits < 1 || editingMaxUnits > 50) {
+        setError('Max units must be between 1 and 50');
+        return;
+      }
+      const res = await fetch('/api/admin/semesters', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ semesterId, maxUnits: editingMaxUnits }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to update max units');
+      }
+      // Refresh courses
+      const coursesRes = await fetch('/api/admin/courses');
+      const coursesData = await coursesRes.json();
+      setLevels(coursesData.levels);
+      setEditingSemesterId(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error updating max units');
     }
   };
 
@@ -381,15 +408,78 @@ export default function AdminPage() {
                         >
                           {semester.semesterName}
                         </h3>
-                        <p
-                          style={{
-                            color: 'var(--muted)',
-                            margin: '0',
-                            fontSize: '12px',
-                          }}
-                        >
-                          Max Units: {semester.maxUnits}
-                        </p>
+                        {editingSemesterId === semester.id ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                            <span style={{ color: 'var(--muted)', fontSize: '12px' }}>Max Units:</span>
+                            <input
+                              type="number"
+                              value={editingMaxUnits}
+                              onChange={(e) => setEditingMaxUnits(parseInt(e.target.value) || 0)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleUpdateMaxUnits(semester.id);
+                                if (e.key === 'Escape') setEditingSemesterId(null);
+                              }}
+                              autoFocus
+                              style={{
+                                width: '55px',
+                                backgroundColor: 'rgba(255,255,255,0.05)',
+                                border: '1px solid var(--accent)',
+                                color: 'var(--text)',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                fontSize: '12px',
+                                fontFamily: 'inherit',
+                                textAlign: 'center',
+                              }}
+                            />
+                            <button
+                              onClick={() => handleUpdateMaxUnits(semester.id)}
+                              style={{
+                                backgroundColor: 'var(--success)',
+                                color: 'var(--bg)',
+                                border: 'none',
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '11px',
+                                fontWeight: '500',
+                              }}
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => setEditingSemesterId(null)}
+                              style={{
+                                backgroundColor: 'rgba(255,255,255,0.1)',
+                                color: 'var(--text)',
+                                border: '1px solid var(--border)',
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '11px',
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <p
+                            onClick={() => {
+                              setEditingSemesterId(semester.id);
+                              setEditingMaxUnits(semester.maxUnits);
+                            }}
+                            style={{
+                              color: 'var(--muted)',
+                              margin: '0',
+                              fontSize: '12px',
+                              cursor: 'pointer',
+                              display: 'inline-block',
+                            }}
+                            title="Click to edit max units"
+                          >
+                            Max Units: {semester.maxUnits} <span style={{ fontSize: '10px', opacity: 0.6 }}>✎</span>
+                          </p>
+                        )}
                       </div>
                       {addingToSemesterId !== semester.id && (
                         <button
