@@ -99,7 +99,7 @@ export default function AppShell({
         CA out of 30 &bull; Exam out of 70 &bull; VC List: 4.50+ &bull; Dean&apos;s List: 4.00+
       </div>
       <div className="copyright">
-        &copy; {new Date().getFullYear()} &bull; Made with ❤️ by Isaac Frank
+        &copy; {new Date().getFullYear()} &bull; Made with ❤️ by <a href="https://x.com/zikyfranky" target="_blank" rel="noopener noreferrer" className="copyright-link">Isaac Frank</a>
       </div>
     </div>
   );
