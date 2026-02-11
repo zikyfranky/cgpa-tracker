@@ -50,6 +50,36 @@ export default function AdminPage() {
     units: 0,
   });
   const [expandedLevelId, setExpandedLevelId] = useState<number | null>(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordMsg, setPasswordMsg] = useState<string | null>(null);
+
+  const handleChangePassword = async () => {
+    setPasswordMsg(null);
+    if (!newPassword || newPassword.length < 3) {
+      setPasswordMsg('Password must be at least 3 characters.');
+      return;
+    }
+    try {
+      const res = await fetch('/api/admin/password', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newPassword }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to change password');
+      }
+      setPasswordMsg('Password changed successfully!');
+      setNewPassword('');
+      setTimeout(() => {
+        setShowPasswordModal(false);
+        setPasswordMsg(null);
+      }, 1500);
+    } catch (err) {
+      setPasswordMsg(err instanceof Error ? err.message : 'Error changing password');
+    }
+  };
 
   // Check authentication on mount
   useEffect(() => {
@@ -209,12 +239,31 @@ export default function AdminPage() {
         >
           ← Back to Home
         </a>
-        <h1 style={{ color: 'var(--text)', margin: '10px 0 5px 0' }}>
-          Course Administration
-        </h1>
-        <p style={{ color: 'var(--muted)', margin: '0', fontSize: '14px' }}>
-          Manage courses, units, and course details
-        </p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h1 style={{ color: 'var(--text)', margin: '10px 0 5px 0' }}>
+              Course Administration
+            </h1>
+            <p style={{ color: 'var(--muted)', margin: '0', fontSize: '14px' }}>
+              Manage courses, units, and course details
+            </p>
+          </div>
+          <button
+            onClick={() => { setShowPasswordModal(true); setNewPassword(''); setPasswordMsg(null); }}
+            style={{
+              backgroundColor: 'rgba(255,255,255,0.08)',
+              color: 'var(--text)',
+              border: '1px solid var(--border)',
+              padding: '8px 16px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '13px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Change Password
+          </button>
+        </div>
       </div>
 
       {/* Error message */}
@@ -765,6 +814,100 @@ export default function AdminPage() {
           }}
         >
           No levels or courses configured yet.
+        </div>
+      )}
+
+      {/* Password Change Modal */}
+      {showPasswordModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.6)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onClick={() => setShowPasswordModal(false)}
+        >
+          <div
+            style={{
+              backgroundColor: 'var(--card)',
+              border: '1px solid var(--border)',
+              borderRadius: '12px',
+              padding: '30px',
+              width: '90%',
+              maxWidth: '380px',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{ color: 'var(--text)', fontSize: '18px', marginBottom: '6px' }}>
+              Change Admin Password
+            </h2>
+            <p style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '20px' }}>
+              Enter a new password below.
+            </p>
+            <input
+              type="password"
+              placeholder="New password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleChangePassword(); }}
+              autoFocus
+              style={{
+                width: '100%',
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                border: '1px solid var(--border)',
+                color: 'var(--text)',
+                padding: '10px 14px',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                marginBottom: '16px',
+              }}
+            />
+            {passwordMsg && (
+              <p style={{
+                fontSize: '13px',
+                marginBottom: '12px',
+                color: passwordMsg.includes('success') ? 'var(--success)' : 'var(--highlight)',
+              }}>
+                {passwordMsg}
+              </p>
+            )}
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowPasswordModal(false)}
+                style={{
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  color: 'var(--text)',
+                  border: '1px solid var(--border)',
+                  padding: '8px 16px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleChangePassword}
+                style={{
+                  backgroundColor: 'var(--accent)',
+                  color: 'var(--text)',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                }}
+              >
+                Save Password
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
