@@ -3,11 +3,8 @@ import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
 
-// Load .env.local
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(__dirname, '..', '.env.local') });
 
 async function seed() {
   const connection = await mysql.createConnection({
