@@ -1,36 +1,5 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/server/db';
-import { promises as fs } from 'fs';
-import path from 'path';
-
-// Fallback: load from public/courses.json when DB is unavailable
-async function fallbackFromJSON() {
-  try {
-    const jsonPath = path.join(process.cwd(), 'public', 'courses.json');
-    const raw = await fs.readFile(jsonPath, 'utf-8');
-    const config = JSON.parse(raw);
-
-    const courseData: Record<string, any> = {};
-    const semesterMaxMap: Record<string, number> = {};
-
-    for (const [levelNum, levelData] of Object.entries(config.levels) as [string, any][]) {
-      courseData[levelNum] = { session: levelData.session, semesters: {} };
-      for (const [semName, semData] of Object.entries(levelData.semesters) as [string, any][]) {
-        courseData[levelNum].semesters[semName] = semData.courses;
-        semesterMaxMap[`${levelNum}|${semName}`] = semData.maxUnits || config.globalMaxUnits || 24;
-      }
-    }
-
-    return NextResponse.json({
-      globalMaxUnits: config.globalMaxUnits || 24,
-      globalMinUnits: config.globalMinUnits || 16,
-      levels: courseData,
-      semesterMax: semesterMaxMap,
-    });
-  } catch {
-    return NextResponse.json({ error: 'Failed to load course data' }, { status: 500 });
-  }
-}
 
 export async function GET() {
   try {
@@ -90,7 +59,18 @@ export async function GET() {
       semesterMax: semesterMaxMap,
     });
   } catch (err: any) {
-    console.error('Courses DB fetch error, falling back to JSON:', err.message);
-    return fallbackFromJSON();
+    console.error('Courses fetch error:', err.message);
+
+    const isConnectionError = err.message?.includes('ECONNREFUSED') || err.message?.includes('ETIMEDOUT') || err.message?.includes('Access denied');
+    const isTableError = err.message?.includes("doesn't exist") || err.message?.includes('no such table');
+
+    let message = 'Something went wrong while loading courses.';
+    if (isConnectionError) {
+      message = 'Could not connect to the database. Please check your DB_HOST, DB_PORT, DB_USER, and DB_PASSWORD in .env.local and make sure MySQL is running.';
+    } else if (isTableError) {
+      message = 'Database tables not found. Please run the seed script (npx ts-node db/seed.ts) to set up the database.';
+    }
+
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
