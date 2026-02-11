@@ -342,6 +342,13 @@ body {
   color: var(--muted);
   font-size: 0.8rem;
 }
+.copyright {
+  text-align: center;
+  padding: 0 20px 30px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
 
 /* Responsive */
 @media (max-width: 768px) {

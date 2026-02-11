@@ -98,6 +98,9 @@ export default function AppShell({
         A Excellent (70-100) = 5pts &bull; B Very Good (60-69) = 4pts &bull; C Good (50-59) = 3pts &bull; D Fair (45-49) = 2pts &bull; E Poor (40-44) = 1pt &bull; F Fail (0-39) = 0pts<br />
         CA out of 30 &bull; Exam out of 70 &bull; VC List: 4.50+ &bull; Dean&apos;s List: 4.00+
       </div>
+      <div className="copyright">
+        &copy; {new Date().getFullYear()} &bull; Made with ❤️ by Isaac Frank
+      </div>
     </div>
   );
 }
